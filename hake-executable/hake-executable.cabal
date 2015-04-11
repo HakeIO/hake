@@ -1,0 +1,25 @@
+Name:                hake
+Version:             0.1
+Synopsis:            Executable for Hake
+Description:         Executable for Hake
+Homepage:            https://github.com/HakeIO/hake
+License:             BSD3
+License-file:        LICENSE
+Author:              Nathan Howell, Steve Severance
+Maintainer:          nhowell@alphaheavy.com, sseverance@alphaheavy.com
+Category:            Development
+Build-type:          Simple
+
+Cabal-version:       >=1.18
+
+Executable shake
+  Default-Language:  Haskell2010
+  Main-is:           Main.hs
+  GHC-Options:       -Wall -threaded -rtsopts "-with-rtsopts=-qg1 -N"
+
+  Build-depends:     base         >= 4.4 && < 5,
+                     hake-library == 0.1
+
+Source-Repository head
+  Type:              git
+  Location:          https://github.com/HakeIO/hake.git
