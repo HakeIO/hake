@@ -1,6 +1,8 @@
 {-# LANGUAGE RecordWildCards #-}
 module Development.Hake.Types (
-    HakeMode(..)
+    hakeParser
+  , HakeMode(..)
+  , InitOptions(..)
   , PersistedEnvironment(..)) where
 
 import Control.DeepSeq
@@ -8,12 +10,41 @@ import Control.Monad (liftM5)
 import Data.Binary
 import Data.Hashable
 import Data.Typeable
+import Development.Shake.FilePath
+import Options.Applicative
 
-data InitOpts = InitOpts {
+data Verbosity = Quiet | Verbose deriving (Enum,Read,Show)
+
+data InitOptions = InitOptions {
+  ioDesiredPrefix    :: FilePath,
+  ioKeepGoing :: Bool,
   ioAdditionalPackageDbs :: [FilePath]
   }
 
-data HakeMode = Init InitOpts
+data HakeMode = Init InitOptions
+
+data HakeOptions = HakeOptions {
+    hoVerbosity :: Verbosity,
+    hoMode :: HakeMode
+  }
+
+verbosityParser :: Parser Verbosity
+verbosityParser = option auto ( short 'v' <> long "verbose" <> value Quiet <> help "Desired verbosity level")
+
+keepGoingParser :: Parser Bool
+keepGoingParser = switch (short 'k' <> long "keep-going" <> help "Continue as much as possible after an error")
+
+hakeModeParser :: Parser HakeMode
+hakeModeParser = hsubparser $
+  command "init" (info (Init <$> (InitOptions
+   <$> option str (value ("dist" </> "build") <> long "prefix" <> help "Installation prefix")
+   <*> keepGoingParser
+   <*> many (option str (long "package-db" <> help "Additional Package DBs for finding dependencies."))
+     )) $ progDesc "init")
+
+hakeParser :: ParserInfo HakeOptions
+hakeParser = info ((HakeOptions <$> verbosityParser <*> hakeModeParser) <**> helper)
+                     (progDesc "The hake program" <> fullDesc)
 
 data PersistedEnvironment = PersistedEnvironment
   { penvRootDirectory    :: FilePath

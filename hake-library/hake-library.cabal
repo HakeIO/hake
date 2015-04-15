@@ -27,6 +27,7 @@ library
     binary,
     deepseq,
     hashable,
+    optparse-applicative,
     shake                      > 0.14
   ghc-options:
     -Wall
